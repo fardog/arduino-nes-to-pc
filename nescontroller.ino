@@ -14,7 +14,7 @@ byte controller_data = 0;
 
 /* Controller Keys */
 byte KEYS[] = {
-  /* Controller 1 */
+  /* Controller 1, NES only */
   0xD7, // Right, KEY_RIGHT_ARROW
   0xD8, // Left, KEY_LEFT_ARROW
   0xD9, // Down, KEY_DOWN_ARROW
@@ -22,7 +22,16 @@ byte KEYS[] = {
   0x5D, // Start, ']'
   0x5B, // Select, '['
   0x7A, // B, 'z'
-  0x78 // A, 'x'
+  0x78, // A, 'x'
+  /* Controller 2, NES only */
+  102, // Right, Numpad 6
+  100, // Left, Numpad 4
+  98, // Down, Numpad 2
+  104, // Up, Numpad 8
+  105, // start, Numpad 9
+  103, // Select, Numpad 7
+  96, // B, Numpad 0
+  101, // A, Numpad 5
 };
 
 /* SETUP */
@@ -47,13 +56,14 @@ void controllerRead() {
   delayMicroseconds(2);
   digitalWrite(LATCH, LOW);
 
-  controller_data = digitalRead(DATA);
+  /* We invert reads, since NES sends low for a button press. */
+  controller_data = !digitalRead(DATA);
 
   for (int i = 1; i < 8; i++) {
     digitalWrite(CLOCK, HIGH);
     delayMicroseconds(2);
     controller_data = controller_data << 1;
-    controller_data = controller_data + digitalRead(DATA) ;
+    controller_data = controller_data + !digitalRead(DATA) ;
     delayMicroseconds(4);
     digitalWrite(CLOCK, LOW);
   }
@@ -68,8 +78,7 @@ void loop() {
       byte last_value = last_controller_data & (1 << i);
       
       if (controller_value != last_value) {
-        /* Bits are inverted, so a falsey value means we should press */
-        if (!controller_value) {
+        if (controller_value) {
           Keyboard.press(KEYS[i]);
         }
         else {
