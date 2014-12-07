@@ -8,8 +8,8 @@ MIT Licensed
 
 int NUM_BUTTONS = 8;
 int NUM_CONTROLLERS = 2;
-byte last_controller_data = 0;
-byte controller_data = 0;
+int last_controller_data = 0;
+int controller_data = 0;
 
 int CLOCK = 0;
 int LATCH = 1;
@@ -38,14 +38,14 @@ byte KEYS[] = {
   0x7A, // B, 'z'
   0x78, // A, 'x'
   /* Controller 2, NES only */
-  102, // Right, Numpad 6
-  100, // Left, Numpad 4
-  98, // Down, Numpad 2
-  104, // Up, Numpad 8
-  105, // start, Numpad 9
-  103, // Select, Numpad 7
-  96, // B, Numpad 0
-  101, // A, Numpad 5
+  0x66, // Right, Numpad 6
+  0x64, // Left, Numpad 4
+  0x62, // Down, Numpad 2
+  0x68, // Up, Numpad 8
+  0x69, // start, Numpad 9
+  0x67, // Select, Numpad 7
+  0x6B, // B, Numpad *
+  0x65, // A, Numpad 5
 };
 
 /* SETUP */
@@ -70,14 +70,15 @@ void controllerRead(int c) {
   digitalWrite(PINS[c][LATCH], HIGH);
   delayMicroseconds(2);
   digitalWrite(PINS[c][LATCH], LOW);
+  
+  controller_data = controller_data + !digitalRead(PINS[c][DATA]);
 
-  /* We invert reads, since NES sends low for a button press. */
-  controller_data = !digitalRead(PINS[c][DATA]);
-
-  for (int i = 1; i < 8; i++) {
+  for (int i = 1; i < NUM_BUTTONS; i++) {
+    controller_data = controller_data << 1;
     digitalWrite(PINS[c][CLOCK], HIGH);
     delayMicroseconds(2);
-    controller_data = controller_data << 1;
+    
+    /* We invert reads, since NES sends low for a button press. */
     controller_data = controller_data + !digitalRead(PINS[c][DATA]);
     delayMicroseconds(4);
     digitalWrite(PINS[c][CLOCK], LOW);
@@ -87,13 +88,15 @@ void controllerRead(int c) {
 void loop() {
   controller_data = 0;
   
+  controllerRead(1);
+  controller_data = controller_data << 1;
   controllerRead(0);
   
   if (controller_data != last_controller_data) {
     // update our keys
-    for (int i = 0; i < 8; i++) {
-      byte controller_value = controller_data & (1 << i);
-      byte last_value = last_controller_data & (1 << i);
+    for (int i = 0; i < NUM_BUTTONS * NUM_CONTROLLERS; i++) {
+      int controller_value = controller_data & (1 << i);
+      int last_value = last_controller_data & (1 << i);
       
       if (controller_value != last_value) {
         if (controller_value) {
