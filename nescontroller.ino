@@ -93,11 +93,13 @@ void loop() {
   }
   
   if (controller_data != last_controller_data) {
-    // update our keys
+    /* Compare each individual key */
     for (int i = 0; i < NUM_BUTTONS * NUM_CONTROLLERS; i++) {
+      /* Isolate just the current key's bit */
       int controller_value = controller_data & (1 << i);
       int last_value = last_controller_data & (1 << i);
       
+      /* if it's changed, we need to update the keyboard emulator */
       if (controller_value != last_value) {
         if (controller_value) {
           Keyboard.press(KEYS[i]);
