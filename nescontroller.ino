@@ -88,8 +88,9 @@ void controllerRead(int c) {
 void loop() {
   controller_data = 0;
   
-  controllerRead(1);
-  controllerRead(0);
+  for (int i = NUM_CONTROLLERS - 1; i >= 0; i--) {
+    controllerRead(i);
+  }
   
   if (controller_data != last_controller_data) {
     // update our keys
