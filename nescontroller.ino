@@ -6,11 +6,25 @@ Adapted from a sketch by Sebastian Tomczak
 MIT Licensed
 */
 
-int CLOCK = 22; // set the CLOCK pin
-int LATCH = 24; // set the LATCH pin
-int DATA = 26;// set the data in pin
+int NUM_BUTTONS = 8;
+int NUM_CONTROLLERS = 2;
 byte last_controller_data = 0;
 byte controller_data = 0;
+
+int CLOCK = 0;
+int LATCH = 1;
+int DATA = 2;
+
+int PINS[2][3] = {
+  /* Controller 1 */
+  22, // CLOCK
+  24, // LATCH
+  26, // DATA
+  /* Controller 2 */
+  23, // CLOCK
+  25, // LATCH
+  27, // DATA
+};
 
 /* Controller Keys */
 byte KEYS[] = {
@@ -39,38 +53,42 @@ void setup() {
   Serial.begin(57600);
   Keyboard.begin();
   
-  pinMode(LATCH, OUTPUT);
-  pinMode(CLOCK, OUTPUT);
-  pinMode(DATA, INPUT);
+  for (int i = 0; i < NUM_CONTROLLERS; i++) {
+    pinMode(PINS[i][LATCH], OUTPUT);
+    pinMode(PINS[i][CLOCK], OUTPUT);
+    pinMode(PINS[i][DATA], INPUT);
 
-  digitalWrite(LATCH, HIGH);
-  digitalWrite(CLOCK, HIGH);
+    digitalWrite(PINS[i][LATCH], HIGH);
+    digitalWrite(PINS[i][CLOCK], HIGH);
+  }
 }
 
-void controllerRead() {
-  controller_data = 0;
-  digitalWrite(LATCH, LOW);
-  digitalWrite(CLOCK, LOW);
+void controllerRead(int c) {
+  digitalWrite(PINS[c][LATCH], LOW);
+  digitalWrite(PINS[c][CLOCK], LOW);
 
-  digitalWrite(LATCH, HIGH);
+  digitalWrite(PINS[c][LATCH], HIGH);
   delayMicroseconds(2);
-  digitalWrite(LATCH, LOW);
+  digitalWrite(PINS[c][LATCH], LOW);
 
   /* We invert reads, since NES sends low for a button press. */
-  controller_data = !digitalRead(DATA);
+  controller_data = !digitalRead(PINS[c][DATA]);
 
   for (int i = 1; i < 8; i++) {
-    digitalWrite(CLOCK, HIGH);
+    digitalWrite(PINS[c][CLOCK], HIGH);
     delayMicroseconds(2);
     controller_data = controller_data << 1;
-    controller_data = controller_data + !digitalRead(DATA) ;
+    controller_data = controller_data + !digitalRead(PINS[c][DATA]);
     delayMicroseconds(4);
-    digitalWrite(CLOCK, LOW);
+    digitalWrite(PINS[c][CLOCK], LOW);
   }
 }
 
 void loop() {
-  controllerRead();
+  controller_data = 0;
+  
+  controllerRead(0);
+  
   if (controller_data != last_controller_data) {
     // update our keys
     for (int i = 0; i < 8; i++) {
