@@ -13,6 +13,10 @@ sketch just maps the controller buttons to keypresses.
 Instructions, wiring diagrams, and other info will be provided once this is a
 little further along!
 
+## Credits
+
+This sketch is based on work by [Sebastian Tomczak](http://little-scale.blogspot.com/2007/07/nes-controller-to-arduino.html).
+
 ## The MIT License (MIT)
 
 Copyright (c) 2014 Nathan Wittstock
