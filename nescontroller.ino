@@ -25,8 +25,6 @@ byte KEYS[] = {
   0x78 // A, 'x'
 };
 
-bool keys_state[] = {1, 1, 1, 1, 1, 1, 1, 1};
-
 /* SETUP */
 void setup() {
   Serial.begin(57600);
@@ -70,13 +68,12 @@ void loop() {
       byte last_value = last_controller_data & (1 << i);
       
       if (controller_value != last_value) {
-        if (keys_state[i] == 0) {
+        /* Bits are inverted, so a falsey value means we should press */
+        if (!controller_value) {
           Keyboard.press(KEYS[i]);
-          keys_state[i] = 1;
         }
         else {
           Keyboard.release(KEYS[i]);
-          keys_state[i] = 0;
         }
       }
     }
