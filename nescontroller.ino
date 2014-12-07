@@ -67,19 +67,19 @@ void controllerRead(int c) {
   digitalWrite(PINS[c][LATCH], LOW);
   digitalWrite(PINS[c][CLOCK], LOW);
 
+  /* Latch current controller state */
   digitalWrite(PINS[c][LATCH], HIGH);
   delayMicroseconds(2);
   digitalWrite(PINS[c][LATCH], LOW);
-  
-  controller_data = controller_data + !digitalRead(PINS[c][DATA]);
 
-  for (int i = 1; i < NUM_BUTTONS; i++) {
+  for (int i = 0; i < NUM_BUTTONS; i++) {
     controller_data = controller_data << 1;
-    digitalWrite(PINS[c][CLOCK], HIGH);
-    delayMicroseconds(2);
-    
     /* We invert reads, since NES sends low for a button press. */
     controller_data = controller_data + !digitalRead(PINS[c][DATA]);
+    
+    /* Instruct controller to shift off the next bit */
+    delayMicroseconds(2);
+    digitalWrite(PINS[c][CLOCK], HIGH);
     delayMicroseconds(4);
     digitalWrite(PINS[c][CLOCK], LOW);
   }
@@ -89,7 +89,6 @@ void loop() {
   controller_data = 0;
   
   controllerRead(1);
-  controller_data = controller_data << 1;
   controllerRead(0);
   
   if (controller_data != last_controller_data) {
