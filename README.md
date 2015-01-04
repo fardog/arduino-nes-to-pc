@@ -1,12 +1,10 @@
 # Arduino NES/SNES Adapter
 
 An Arduino sketch that exposes an NES (and later, SNES) controller(s) to a
-connected PC. This is accomplished simply: some newer Arduino boards (such as
-the [Leonardo][leonardo] and [Due][due]) can emulate a USB Keyboard/Mouse. This
-sketch just maps the controller buttons to keypresses.
+connected PC as a joystick interface. This is written for the [Digispark][ds]
+which can emulate a standard HID Joystick over USB.
 
-[due]: http://arduino.cc/en/Main/ArduinoBoardDue
-[leonardo]: http://arduino.cc/en/Guide/ArduinoLeonardoMicro?from=Guide.ArduinoLeonardo
+[dg]: http://digistump.com/products/1
 
 ## Usage
 
@@ -15,7 +13,10 @@ little further along!
 
 ## Credits
 
-This sketch is based on work by [Sebastian Tomczak](http://little-scale.blogspot.com/2007/07/nes-controller-to-arduino.html).
+- Thanks to [Sebastian Tomczak][st] who's work provided the basic controller
+  reading logic.
+
+[st]: http://little-scale.blogspot.com/2007/07/nes-controller-to-arduino.html
 
 ## The MIT License (MIT)
 
